@@ -1,38 +1,41 @@
 from collections import defaultdict, deque
-from queue import PriorityQueue
+import heapq
 
 
 for _ in range(int(input())):
     n, p, c = [int(i) for i in input().split()]
     graph = defaultdict(set)
-    first = ''
     for _ in range(c):
         a, b = [i for i in input().split()]
         graph[a].add(b)
         graph[b].add(a)
-        first = ''
-    print(graph)
 
-    pq = PriorityQueue()
-    visited = set()
-    for node in list(graph):
+    pq = []
+    connected = set()
+    for node in graph.keys():
         stack = deque()
-        stack.appendleft(first)
+        stack.appendleft(node)
+        visited = {node}
         count = 1
-        while len(stack) > 0 and node not in visited:
+        while len(stack) > 0 and node not in connected:
             curr = stack.popleft()
-            print(graph[curr])
             for neighbor in graph[curr]:
                 if neighbor not in visited:
+                    visited.add(neighbor)
                     stack.appendleft(neighbor)
                     count += 1
-                    print(count)
+        if node not in connected:
+            connected.update(visited)
+            heapq.heappush(pq, (-count, node))
 
     total = 0
     count = 0
-    while not pq.empty:
-        total += -(pq.get()[0])
+    done = False
+    while len(pq) > 0 and not done:
+        total += -(heapq.heappop(pq)[0])
         count += 1
         if total >= n:
+            done = True
             print(count)
-    print('IMPOSSIBLE')
+    if not done:
+        print('IMPOSSIBLE')
